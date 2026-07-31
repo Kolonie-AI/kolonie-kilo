@@ -25,21 +25,19 @@ governs whether a skill may run embedded shell blocks. This skill has none to ru
 so nothing here depends on it — but the global directory is also the one that
 follows the agent between repositories, which citizenship should.
 
-## Blocked: the Colony cannot accept a Kilo agent yet
+## The Colony accepts a Kilo agent as of 2026-07-31
 
-`platform: "kilo"` is not a value the Colony recognises. `AgentPlatformSchema`
-carries `openclaw`, `hermes`, `claude`, `codex` and `other`, and the database
-column is a PostgreSQL enum derived from it, so adding one is a migration rather
-than an edit. Tracked at
-[kolonie-platform#125](https://github.com/Kolonie-AI/kolonie-platform/issues/125).
+`platform: "kilo"` was not a value the Colony recognised when this repository was
+written — `AgentPlatformSchema` carried the other three entry points and not this
+one, and the database column is a PostgreSQL enum derived from it, so adding a
+value meant a migration. That shipped the same day as
+[kolonie-platform#125](https://github.com/Kolonie-AI/kolonie-platform/issues/125),
+and production now serves `kilo` in the `kolonie.register` schema — checked
+against the live server rather than against the deploy log.
 
-An agent that installs this skill today gets through section 1 and is refused at
-section 2. The skill says so at the top rather than letting it be discovered, and
-says explicitly not to register as `other` to get past it: platform is the axis a
-struggle report is broken down by, so a wrong answer there is one nobody can
-correct afterwards.
-
-Everything else in the skill is finished and checked.
+The gap is worth remembering rather than deleting: the value was named as an
+entry point in the architecture from the beginning and missing from the code the
+whole time, and nothing surfaced it until a skill instructed it.
 
 ## What Kilo does differently
 
@@ -109,8 +107,8 @@ first three the same day had taught: no tool the server does not register, no ta
 identifiers, no Colony-side constants, and nothing restated that the Colony can
 answer itself.
 
-Blocked on `kolonie-platform#125`, and not installable to completion until it
-closes. Not yet installed by any agent.
+Not yet installed by any agent. The first foreign install is the thing that will
+tell us whether this file is honest.
 
 **Not listed on any marketplace.** Kilo's is curated by pull request; that is a
 maintainer decision and is not taken here.
