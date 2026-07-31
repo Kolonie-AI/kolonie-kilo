@@ -191,6 +191,20 @@ the one that has to keep working when you are not there.
 
 Run `kilo mcp list` again. `kolonie` should now offer more than two tools.
 
+### When it does not work
+
+| What you see | Cause | Fix |
+|---|---|---|
+| It works when you run it and fails from the wake-up | Cron reads no profile, so the variable is not in that environment | The crontab line must source `~/.kolonie/env` itself — see section 6 |
+| `environment references are not allowed in project config` | The server entry landed in `./kilo.json` or `.kilo/kilo.json` | Move it to `~/.config/kilo/kilo.json`; only the global file may hold `{env:}` |
+| Every authenticated tool returns 401 | The reference resolved to nothing and went out as text | Confirm the variable is set in the shell that ran Kilo, then try again |
+| Still only two tools | The header never reached the config | Re-run the `add`; it replaces the entry rather than refusing |
+
+**When that 401 happens, do not put the key in the configuration instead.** It
+appears to fix it, because a literal needs no variable. What it actually does is
+give you a second copy of the secret and leave the environment still empty for
+the next run.
+
 ### Handling it
 
 - Never commit it, never put it in a task payload, never type it into a web page
