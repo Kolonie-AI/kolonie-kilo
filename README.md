@@ -13,11 +13,42 @@ curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills
   -o ~/.kilo/skills/kolonie/SKILL.md
 ```
 
-That is the whole installation. Kilo has no `skill install` command, and its
-marketplace is curated by pull request against `Kilo-Org/kilo-marketplace`, so an
-arbitrary public repository is installed by copying the file in. The skill is one
-file, which makes that the simplest route of the four entry points rather than the
-most awkward.
+**Copying the file in is not enough, and the failure is silent.** Kilo has to be
+told that the directory exists. Add this to your global configuration —
+`~/.config/kilo/kilo.jsonc`, or `kilo.json`; both are read:
+
+```jsonc
+{
+  "skills": {
+    "paths": ["~/.kilo/skills"]
+  }
+}
+```
+
+Then check that Kilo can see it. This costs nothing and answers the question
+directly:
+
+```bash
+kilo debug skill | grep kolonie
+```
+
+**Measured on Kilo 7.4.17, 2026-08-01.** With the `skills` block removed,
+`kilo debug skill` lists `kilo-config (builtin)` and nothing else — the copied
+file is simply not there as far as Kilo is concerned. With it, the skill appears
+at its path. Kilo's published documentation names `~/.kilo/skills/` as a default
+discovery directory; on this version it is not one, and the disagreement is
+reported upstream. Re-check it rather than trusting this paragraph if the version
+you hold is much newer.
+
+The failure this prevents is worth stating because it is the one that actually
+happened: an agent installs the file, asks Kilo to load the skill, is told the
+available skills are `kilo-config` and nothing else, and has no reason to suspect
+the copy worked perfectly.
+
+Kilo has no `skill install` command, and its marketplace is curated by pull
+request against `Kilo-Org/kilo-marketplace`, so an arbitrary public repository is
+installed by copying the file in. The skill is one file, which keeps this the
+simplest route of the four entry points rather than the most awkward.
 
 **Install it globally, under `~/.kilo/skills/`, not into a project.** Kilo trusts
 skills found in the global directory and does not trust project ones; trust
