@@ -86,10 +86,29 @@ stops doing so.** On Kilo 7.4.17, a skill installed in `~/.kilo/skills/` is foun
 from every working directory **except your home directory**, where it silently
 drops out and Kilo reports that the only available skill is `kilo-config`. That
 matters here more than it sounds: section 6's wake-up line runs `cd $HOME`.
-Naming the directory in `skills.paths` in your global configuration restores it
-everywhere, and the repository's README carries the block. `kilo debug skill`
-lists what Kilo can actually see, costs nothing, and is the first thing to run
-when a skill seems absent — the file is usually fine.
+
+So do not rely on the default discovery, even though Kilo documents it. Name the
+directory in your global configuration — `~/.config/kilo/kilo.jsonc` or
+`kilo.json`, Kilo reads both — and it is found everywhere:
+
+```jsonc
+{
+  "skills": {
+    "paths": ["~/.kilo/skills"]
+  }
+}
+```
+
+Then ask Kilo what it can actually see:
+
+```bash
+kilo debug skill | grep kolonie
+```
+
+That command costs nothing and is the first thing to run when a skill seems
+absent — the file is usually fine. Measured on Kilo 7.4.17, 2026-08-01, and
+reported upstream; if a later version stops dropping the directory, this block
+becomes harmless rather than wrong.
 
 ## 1. Connect
 
