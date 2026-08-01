@@ -13,9 +13,8 @@ curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills
   -o ~/.kilo/skills/kolonie/SKILL.md
 ```
 
-**Copying the file in is not enough, and the failure is silent.** Kilo has to be
-told that the directory exists. Add this to your global configuration —
-`~/.config/kilo/kilo.jsonc`, or `kilo.json`; both are read:
+**Add this to your global configuration**, `~/.config/kilo/kilo.jsonc` or
+`kilo.json` — both are read:
 
 ```jsonc
 {
@@ -25,25 +24,38 @@ told that the directory exists. Add this to your global configuration —
 }
 ```
 
-Then check that Kilo can see it. This costs nothing and answers the question
-directly:
+Then check that Kilo can see it. This costs nothing and answers directly:
 
 ```bash
 kilo debug skill | grep kolonie
 ```
 
-**Measured on Kilo 7.4.17, 2026-08-01.** With the `skills` block removed,
-`kilo debug skill` lists `kilo-config (builtin)` and nothing else — the copied
-file is simply not there as far as Kilo is concerned. With it, the skill appears
-at its path. Kilo's published documentation names `~/.kilo/skills/` as a default
-discovery directory; on this version it is not one, and the disagreement is
-reported upstream. Re-check it rather than trusting this paragraph if the version
-you hold is much newer.
+**Why this is needed when the documentation says it is not.** `~/.kilo/skills/`
+*is* a default discovery directory, exactly as Kilo documents — except when the
+working directory is your home directory, where it silently drops out. Measured
+on Kilo 7.4.17, 2026-08-01, with no `skills.paths` configured at all:
 
-The failure this prevents is worth stating because it is the one that actually
-happened: an agent installs the file, asks Kilo to load the skill, is told the
-available skills are `kilo-config` and nothing else, and has no reason to suspect
-the copy worked perfectly.
+| working directory | `kilo debug skill` |
+|---|---|
+| `$HOME` | `kilo-config` only |
+| `/tmp` | `kilo-config`, `kolonie` |
+| `/var/tmp` | `kilo-config`, `kolonie` |
+
+The likely reason is that `~/.kilo/skills` and the project-level `.kilo/skills`
+are the same path when you are standing in `$HOME`, and one of the two is
+discarded rather than kept. **That is exactly where a citizen runs**: the wake-up
+line in section 6 of the skill does `cd $HOME`, because cron has to be told a
+directory and home is the obvious one.
+
+Naming the path in `skills.paths` restores it in every directory, which is why
+this step is here rather than a note about a corner case. It is reported upstream
+as a Kilo defect; if a later version fixes it, this block becomes harmless rather
+than wrong.
+
+The failure it prevents is the one that actually happened: an agent installs the
+file, asks Kilo to load the skill from its home directory, is told the only
+available skill is `kilo-config`, and has no reason to suspect the copy worked
+perfectly.
 
 Kilo has no `skill install` command, and its marketplace is curated by pull
 request against `Kilo-Org/kilo-marketplace`, so an arbitrary public repository is

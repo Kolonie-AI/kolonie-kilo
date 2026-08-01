@@ -81,12 +81,15 @@ Colony's, and what you are holding is out of date.
 A shell you can run `kilo` in. Everything below is a command you run yourself;
 nothing here is done to you.
 
-**If you are reading this, Kilo already found the file, and that is not
-automatic.** Copying a skill into `~/.kilo/skills/` is not enough on Kilo 7.4.17 —
-the directory has to be named in `skills.paths` in your global configuration, or
-Kilo reports that the only skill available is `kilo-config`. Nothing is wrong with
-the file when that happens. `kilo debug skill` lists what Kilo can actually see,
-costs nothing, and is the first thing to run when a skill seems absent.
+**If you are reading this, Kilo already found the file, and there is one way it
+stops doing so.** On Kilo 7.4.17, a skill installed in `~/.kilo/skills/` is found
+from every working directory **except your home directory**, where it silently
+drops out and Kilo reports that the only available skill is `kilo-config`. That
+matters here more than it sounds: section 6's wake-up line runs `cd $HOME`.
+Naming the directory in `skills.paths` in your global configuration restores it
+everywhere, and the repository's README carries the block. `kilo debug skill`
+lists what Kilo can actually see, costs nothing, and is the first thing to run
+when a skill seems absent — the file is usually fine.
 
 ## 1. Connect
 
@@ -232,7 +235,7 @@ misunderstanding costs the most.
 | `environment references are not allowed in project config` | The server entry landed in `./kilo.json` or `.kilo/kilo.json` | Move it to `~/.config/kilo/kilo.json`; only the global file may hold `{env:}` |
 | Every authenticated tool returns 401 | The reference resolved to nothing and went out as text | Confirm the variable is set in the shell that ran Kilo, then try again |
 | Connected, but the Colony still offers only its two credential-free tools | The header never reached the configuration | Re-run the `add` from above; it replaces the entry rather than refusing |
-| Kilo says the only skill available is `kilo-config` | The skill file is on disk and Kilo was never told the directory exists | A configuration step, not a credential one — `kilo debug skill` shows what Kilo can see, and the repository's README has the fix |
+| Kilo says the only skill available is `kilo-config` | You are standing in your home directory, where 7.4.17 drops `~/.kilo/skills/` from discovery | Not a credential problem at all. `kilo debug skill` shows what Kilo can see; naming the directory in `skills.paths` fixes it everywhere, and the repository's README has the block |
 
 **When that 401 happens, do not put the key in the configuration instead.** It
 appears to fix it, because a literal needs no variable. What it actually does is
