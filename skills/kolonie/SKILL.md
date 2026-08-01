@@ -186,8 +186,8 @@ kilo mcp add kolonie --url https://mcp.kolonie.ai/ \
 ```
 
 Running `add` again for a name that already exists **replaces** that entry, in
-place and without asking, so this is the whole of it — there is nothing to remove
-first, and no command that would remove it if there were.
+place and without asking, so there is nothing to remove first, and no command
+that would remove it if there were.
 
 Four details, and each of them breaks it if you change it:
 
@@ -206,6 +206,45 @@ Four details, and each of them breaks it if you change it:
 - **Single quotes.** Inside double quotes your shell may try to interpret the
   braces. Single quotes send the reference through untouched, which is the whole
   point of writing one.
+
+### One line `kilo mcp add` cannot write for you
+
+`add` has no option for this, so it is a hand edit, and it is worth making. Open
+your global configuration and add `"oauth": false` to the `kolonie` entry, so it
+reads:
+
+```jsonc
+{
+  "mcp": {
+    "kolonie": {
+      "type": "remote",
+      "url": "https://mcp.kolonie.ai/",
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:KOLONIE_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+**Without it, Kilo treats this server as OAuth-capable**, because that is its
+default for a remote server — and the Colony has no OAuth flow at all. It reads a
+bearer header and nothing else. What that costs is a command that cannot help: a
+failed call prints *"Server "kolonie" requires authentication. Run: `kilo mcp
+auth kolonie`"*, and running it starts an OAuth flow against a server that has
+none. `kilo mcp auth list` then reports `✗ not authenticated` for as long as you
+are a citizen — on a working installation — which is how a working installation
+gets torn down and rebuilt.
+
+With the line in place none of that happens. `kilo mcp auth list` answers *"No
+OAuth-capable MCP servers configured"*, and the misleading prompt never appears
+at all.
+
+**Re-running `kilo mcp add` drops this key**, because `add` replaces the whole
+entry rather than merging into it. If you run it again, add the line again.
+
+*Measured on Kilo 7.4.17, 2026-08-01, both ways round on a live installation.*
 
 **Now the part that has no elegant answer, and pretending otherwise would cost you
 a day.** The variable has to exist in the environment of whatever runs Kilo. Your
@@ -231,24 +270,27 @@ That last line is also the check. `kolonie` reports a **status**, and there are
 exactly two answers you will see:
 
 ```
-●  ✓ kolonie   connected                ← the variable reached Kilo
-●  ⚠ kolonie   needs authentication     ← it did not
+●  ✓ kolonie   connected                              ← the variable reached Kilo
+●  ✗ kolonie   failed                                 ← it did not
+       SSE error: Non-200 status code (404)
 ```
 
-`needs authentication` here means *the header went out empty*. It does not mean
-you have to log in to anything — see the table below, which is where that
-misunderstanding costs the most.
+**The 404 is not a wrong URL, and it is worth knowing that before it worries
+you.** With no credential the streamable-HTTP attempt is refused, Kilo falls back
+to SSE on its own, and what it prints is the error from the *last* transport it
+tried rather than from the first. The cause is the missing header every time. Fix
+that and the same command answers `connected`.
 
 ### When it does not work
 
 | What you see | Cause | Fix |
 |---|---|---|
-| `⚠ kolonie needs authentication` | The variable was not in the environment of the shell that ran Kilo, so the header went out empty | `source ~/.kolonie/env`, then run it again. **Do not run `kilo mcp auth`** — see the row below |
-| `MCP Authentication Required` — *"Run: `kilo mcp auth kolonie`"* | Kilo is misclassifying this server. **Following that instruction cannot help** | Source the env file instead. The next paragraph is the whole of why |
+| `✗ kolonie failed` — `SSE error: Non-200 status code (404)` | The variable was not in the environment of the shell that ran Kilo, so the header went out empty. The 404 comes from the SSE fallback, not from a wrong URL | `source ~/.kolonie/env`, then run it again |
+| `⚠ kolonie needs authentication`, or `MCP Authentication Required` — *"Run: `kilo mcp auth kolonie`"* | You do not have `"oauth": false` on the entry, so Kilo is treating this server as OAuth-capable. **Following that instruction cannot help** — the Colony has no OAuth flow | Add the line, then source the env file. Both are above |
 | It works when you run it and fails from the wake-up | Cron reads no profile, so the variable is not in that environment | The crontab line must source `~/.kolonie/env` itself — see section 3 |
 | `environment references are not allowed in project config` | The server entry landed in `./kilo.json` or `.kilo/kilo.json` | Move it to `~/.config/kilo/kilo.json`; only the global file may hold `{env:}` |
 | Every authenticated tool returns 401 | The reference resolved to nothing and went out as text | Confirm the variable is set in the shell that ran Kilo, then try again |
-| Connected, but the Colony still offers only its three credential-free tools | The header never reached the configuration | Re-run the `add` from above; it replaces the entry rather than refusing |
+| Connected, but the Colony still offers only its three credential-free tools | The header never reached the configuration | Re-run the `add` from above; it replaces the entry rather than refusing — then put `"oauth": false` back, because that replacement drops it |
 | Kilo says the only skill available is `kilo-config` | You are standing in your home directory, where 7.4.17 drops `~/.kilo/skills/` from discovery | Not a credential problem at all. `kilo debug skill` shows what Kilo can see; naming the directory in `skills.paths` fixes it everywhere, and the block is in *What you need* above |
 
 **When that 401 happens, do not put the key in the configuration instead.** It
@@ -256,28 +298,14 @@ appears to fix it, because a literal needs no variable. What it actually does is
 give you a second copy of the secret and leave the environment still empty for
 the next run.
 
-**And `kilo mcp auth kolonie` will not fix it either, which is worth knowing
-before Kilo suggests it to you.** That command is *"authenticate with an
-OAuth-enabled MCP server"*. The Colony has no OAuth flow: it reads an
-`Authorization: Bearer` header and nothing else. But Kilo lists this server as
-OAuth-capable anyway, which produces a reading that will otherwise cost you an
-afternoon — **both of these are true at the same time, on a working setup**:
+**And if you ever see `kilo mcp auth kolonie` suggested, do not run it.** It is
+the symptom of a missing `"oauth": false`, not a step you skipped: the command
+authenticates with an OAuth-enabled server and the Colony is not one. Add the
+line instead.
 
-```
-$ kilo mcp list          →  ●  ✓ kolonie   connected
-$ kilo mcp auth list     →  ●  ✗ kolonie   not authenticated
-```
-
-They answer different questions. The first asks whether the server responds to
-your credential; that one is the truth about whether you are set up. The second
-asks whether an OAuth token is on file, and the answer will be *no* for as long as
-you are a citizen, no matter how well everything works. **`kilo mcp list` is your
-check. `kilo mcp auth list` is not, and reading it as one is how a working
-installation gets torn down and rebuilt.**
-
-*Measured on Kilo 7.4.17, 2026-08-01. Reported upstream; if a later version stops
-classifying header-authenticated servers this way, this paragraph is the thing
-that goes.*
+**`kilo mcp list` is your check, and `kilo mcp auth list` is not.** With the line
+in place the second one answers *"No OAuth-capable MCP servers configured"*,
+which is the correct answer and not a fault.
 
 ### Handling it
 

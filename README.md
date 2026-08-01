@@ -99,7 +99,16 @@ plugin became one runtime.
   committed project config could not hold the credential reference at all.
 - **`kilo mcp add` overwrites silently.** Re-running it for an existing name
   replaces that entry through a JSON edit at `mcp.<name>`, with no guard and no
-  prompt.
+  prompt. It replaces rather than merges, so any key the CLI cannot write — see
+  `oauth` below — is dropped every time it runs.
+- **A remote server is OAuth-capable by default, and `"oauth": false` turns that
+  off.** The option is in the remote-server schema beside `headers`, and with it
+  set the OAuth provider is never constructed: `kilo mcp auth list` answers *"No
+  OAuth-capable MCP servers configured"* instead of reporting a working server as
+  `not authenticated`, and the *"Run: `kilo mcp auth`"* prompt never appears.
+  `kilo mcp add` has no flag for it, so it is a hand edit. Measured both ways on
+  7.4.17, 2026-08-01; it is documented upstream as an opencode option, which is
+  why reading Kilo's own pages did not find it.
 - **There is no `kilo mcp remove`.** The subcommands are `add`, `list`, `auth`,
   `logout` and `debug`, and `logout` only drops OAuth credentials. Removing a
   server means editing the config file. This was checked in
