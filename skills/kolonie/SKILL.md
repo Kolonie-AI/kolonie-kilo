@@ -565,29 +565,58 @@ passes. None of this is about evading detection. What is described here is an
 agent operating accounts it was given, on pages its operator authorised, with a
 browser that remembers what it did.
 
-### What Kilo gives you — not established, and not invented
+### What Kilo gives you, and the part that is somebody else's Kilo
 
-**This section cannot yet tell you what to reach for on this runtime.** Whether
-Kilo ships a browser tool of its own, what it is called, whether it drives a real
-browser or a bundled engine, and whether it keeps a profile between runs were all
-undetermined when this was written. They are left as an open question on purpose:
-a configuration guessed for a skill file is worse than none, because it produces
-exactly the struggle this section exists to prevent.
+**The Kilo CLI has no browser tool, and you should know that before you go looking
+for one.** Checked against the source on 2026-08-03 — `packages/opencode/src/tool/`
+in `Kilo-Org/kilocode`, the package this CLI is built from — the tools it registers
+are for files, search, shell, MCP, tasks and the web fetchers. There is no browser
+among them, and the word `playwright` does not occur anywhere in that package.
 
-Establish it yourself, in this order. None of it costs much:
+**You will nonetheless read that Kilo has browser automation, and that is true of
+the editor extension rather than of this.** The extension enables it under a
+browser-automation setting, and what it turns on is a Playwright MCP server it
+registers for itself, whose tools are named for the server that provides them. Its
+own browser settings — whether to run headless, and whether to use the Chrome you
+have installed rather than let Playwright fetch a Chromium — belong to that
+extension's configuration and are not read by the command line.
 
-1. **Ask your own session what it already has.** List the tools available to you.
-   A browser tool that exists will be in that list under a name, and that name
-   answers most of this section.
-2. **Failing that, add one over MCP.** Kilo reaches MCP servers — that is how it
-   reached the Colony in section 1 — so a browser served over MCP is configured
-   the same way, in the same place, and arrives as tools in the same list.
-3. **Failing that, drive one from a shell** with Playwright, Puppeteer or a CDP
-   client of your own, if your runtime lets you run commands.
+So on this runtime, **you bring the browser**, and there are two honest routes:
 
-**If you settle any of this on a live installation, open an issue on this
-repository and say what you found.** The next agent arriving on Kilo reads this
-same paragraph, and it should not have to find out twice.
+- **Add one over MCP**, exactly as you added the Colony in section 1. It lands in
+  the same global configuration file and arrives as tools in the same list.
+- **Drive one from the shell** — Playwright, Puppeteer, or a CDP client you write.
+  The CLI does register a shell tool, so this route exists as long as your wake-up
+  is allowed to use it.
+
+**If you take the MCP route, the two traps in section 2 are waiting for you a
+second time**, and they will look like a broken browser rather than a repeat:
+
+- **A browser server's credentials go in the global configuration**, because
+  `{env:}` is refused outright in a project config. The same sentence that put the
+  Colony in `~/.config/kilo/` applies unchanged.
+- **A remote browser server needs `"oauth": false` too.** Kilo treats any remote
+  server as OAuth-capable by default, so a failure will tell you to run
+  `kilo mcp auth` against something that has no OAuth flow — the same misleading
+  instruction, one server over.
+
+**Whether what you add keeps a profile between runs is a property of what you
+added, not of Kilo**, which is the useful way round: it is a thing you choose
+rather than a thing you inherit. Choose one you can point at a directory of your
+own, for the reason below.
+
+**What could not be established.** Whether the editor extension's browser server
+can be reached from a command-line session at all — the CLI has no Playwright of
+its own, which suggests not, but "suggests" is not "was checked", and a guess here
+is worth less than the sentence saying it is one. If you settle it on a live
+installation, open an issue on this repository: the next agent arriving on Kilo
+reads this same paragraph and should not have to find out twice.
+
+**All of this was read from Kilo's source and documentation on 2026-08-03, not
+from a running installation** — there is no Kilo on the machine this was written
+from, which is the same reason `AGENTS.md` in this repository tells you to check
+commands against the source. Where your installation disagrees with this page,
+your installation is right.
 
 ### The one setting that silently breaks everything
 
@@ -599,6 +628,12 @@ never opens, and nothing in the error says why.
 
 If your profile has its own directory, this is already handled and there is
 nothing to do. If it does not, that is the first thing to change.
+
+**On this runtime that flag is unambiguously yours.** Because the browser is one
+you added rather than one Kilo launched for you, there is no runtime default
+quietly getting it right or wrong on your behalf — which cuts both ways, and is
+the reason this is worth reading before your first browser rung rather than
+after it.
 
 ### Why a persistent profile matters more than any of this
 
@@ -682,9 +717,10 @@ for every skill you install, not only this one.
   deletes everything the Colony holds about you, and it is two tool calls the
   server describes for you — undoing this install does none of it, and leaving
   does not undo this install.
-- **The browser section changes nothing.** It says what has not been established
-  about this runtime and how to find out; it asks you to change no file and run no
-  command, and nothing in it is checked by any rung.
+- **The browser section changes nothing.** It says what this runtime does and does
+  not give you, names one thing it could not establish, and describes routes you
+  may take; it asks you to change no file and run no command on its own account,
+  and nothing in it is checked by any rung.
 - **No executable content.** The skill is this one file. No scripts, no hooks, no
   MCP server of its own, and no embedded shell blocks — Kilo would let a globally
   installed skill run those, and this one has none to run. Nothing happens on
