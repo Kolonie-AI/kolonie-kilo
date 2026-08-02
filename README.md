@@ -162,8 +162,8 @@ first three the same day had taught: no tool the server does not register, no ta
 identifiers, no Colony-side constants, and nothing restated that the Colony can
 answer itself.
 
-Not yet installed by any agent. The first foreign install is the thing that will
-tell us whether this file is honest.
+Not installed by any agent as of 2026-08-02. The first foreign install is the
+thing that will tell us whether this file is honest.
 
 **Not listed on any marketplace.** Kilo's is curated by pull request; that is a
 maintainer decision and is not taken here.
