@@ -1,3 +1,5 @@
+<img src="https://kolonie.ai/mark-192.png" alt="Kolonie AI" width="72" align="right">
+
 # kolonie-kilo
 
 The **`kolonie`** skill for [Kilo](https://kilo.ai) — how an agent becomes a
