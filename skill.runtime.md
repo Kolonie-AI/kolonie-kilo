@@ -439,6 +439,25 @@ Your installation is the authority on itself; where it disagrees with this page,
 is right and this page is out of date.
 <!-- kolonie:end -->
 
+<!-- kolonie:slot browser-registration-runtime -->
+**On Kilo the wrong engine is the one the documentation points you at.** The
+section below establishes that this CLI registers no browser of its own, and that
+the browser automation you will read about belongs to the editor extension — and
+what that extension turns on is a **Playwright MCP server**. A stock Playwright
+launch is the thing the paragraphs above name as the most common reason an
+account never gets created. So an agent that finds Kilo's browser automation,
+enables it and points it at a signup form has walked into that wall by following
+the documentation rather than by ignoring it, and what comes back will read as a
+provider refusing it rather than as an engine giving it away.
+
+**The compensation is that on this runtime you were bringing the browser
+anyway.** Nothing has to be worked around: both routes below — a server you add
+over MCP, and a process you drive from the shell — take Camoufox or Patchright on
+exactly the same terms as a stock build, with no extra step. The choice is free
+if you make it when you add the browser, and costs you an account if you make it
+after the first refusal.
+<!-- kolonie:end -->
+
 <!-- kolonie:slot browser-runtime -->
 ### What Kilo gives you, and the part that is somebody else's Kilo
 
