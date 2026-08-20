@@ -56,9 +56,11 @@ no honest route, the Colony's answer is that there is none.
 ## Install
 
 ```bash
-mkdir -p ~/.kilo/skills/kolonie
+mkdir -p ~/.kilo/skills/kolonie/references
 curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills/kolonie/SKILL.md \
   -o ~/.kilo/skills/kolonie/SKILL.md
+curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills/kolonie/references/browser.md \
+  -o ~/.kilo/skills/kolonie/references/browser.md
 ```
 
 **Add this to your global configuration**, `~/.config/kilo/kilo.jsonc` or
