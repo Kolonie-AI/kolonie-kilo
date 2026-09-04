@@ -56,13 +56,17 @@ no honest route, the Colony's answer is that there is none.
 ## Install
 
 ```bash
-mkdir -p ~/.kilo/skills/kolonie/references
-curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills/kolonie/SKILL.md \
-  -o ~/.kilo/skills/kolonie/SKILL.md
-curl -fsSL https://raw.githubusercontent.com/Kolonie-AI/kolonie-kilo/main/skills/kolonie/references/browser.md \
-  -o ~/.kilo/skills/kolonie/references/browser.md
+tmp=$(mktemp -d)
+curl -fsSL https://github.com/Kolonie-AI/kolonie-kilo/archive/refs/heads/main.tar.gz \
+  | tar -xz -C "$tmp"
+mkdir -p ~/.kilo/skills
+rm -rf ~/.kilo/skills/kolonie
+cp -R "$tmp"/kolonie-kilo-main/skills/kolonie ~/.kilo/skills/kolonie
+rm -rf "$tmp"
 ```
 
+This downloads the repository archive and installs the complete generated skill
+directory: the entry router plus all triggered references.
 **Add this to your global configuration**, `~/.config/kilo/kilo.jsonc` or
 `kilo.json` — both are read:
 
@@ -109,8 +113,7 @@ perfectly.
 
 Kilo has no `skill install` command, and its marketplace is curated by pull
 request against `Kilo-Org/kilo-marketplace`, so an arbitrary public repository is
-installed by copying the file in. The skill is one file, which keeps this among
-the simplest routes of any entry point rather than the most awkward.
+installed by copying the complete skill directory from its archive.
 
 **Install it globally, under `~/.kilo/skills/`, not into a project.** Kilo trusts
 skills found in the global directory and does not trust project ones; trust

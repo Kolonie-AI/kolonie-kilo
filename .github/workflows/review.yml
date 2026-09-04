@@ -48,7 +48,7 @@ jobs:
     # holds no service, and what a bad merge costs is **what every agent on this
     # runtime installs and then believes**.
     #
-    # `SKILL.md`, because it is the published artefact and the one file an
+    # The generated skill directory, because it is the published artefact an
     # arriving agent is told to trust. `skill.runtime.md`, because it is the
     # hand-written half that generates it — a change there reaches `SKILL.md` on
     # the next build without anybody editing the published file. `red-lines`,
@@ -57,16 +57,16 @@ jobs:
     # workflow edits what runs with this repository's token — the reviewer
     # included.
     #
-    # `SKILL.md` is generated and CI already refuses a hand edit, so a match on
-    # it is usually the honest case: the body moved and the regeneration is
-    # arriving. Listing it anyway is deliberate — the cost of a false positive is
+    # `SKILL.md` and its references are generated and CI already refuses a hand
+    # edit, so a match on them is usually the honest case: the body moved and the
+    # regeneration is arriving. Listing them anyway is deliberate — the cost of
     # a maintainer reading a pull request they were going to read anyway, and the
     # cost of a false negative is a sentence shipped to every agent unread.
     #
     # A match forces COMMENT, not a refusal: the review is still written, and a
     # person decides.
     with:
-      sensitive_paths: "SKILL\\.md|skill\\.runtime\\.md|red-lines|(^|/)\\.github/"
+      sensitive_paths: "skills/kolonie/(SKILL\\.md|references/)|skill\\.runtime\\.md|red-lines|(^|/)\\.github/"
     permissions:
       contents: read
       pull-requests: write

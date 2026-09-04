@@ -99,6 +99,18 @@ jobs:
             skills/kolonie/SKILL.md \
             --check
 
+      - name: Test the generated Kilo contract
+        run: python3 tests/test_generated.py
+
+      - name: Exercise the Kilo install layout
+        run: |
+          install_root=$(mktemp -d)
+          trap 'rm -rf "$install_root"' EXIT
+          mkdir -p "$install_root/.kilo/skills"
+          cp -R skills/kolonie "$install_root/.kilo/skills/kolonie"
+          cmp skills/kolonie/SKILL.md "$install_root/.kilo/skills/kolonie/SKILL.md"
+          test "$(find "$install_root/.kilo/skills/kolonie/references" -maxdepth 1 -type f -name '*.md' | wc -l)" -eq 7
+
       # `kolonie-docs#458`. The format is an open standard rather than a vendor
       # convention, and the Colony had shipped seven of these files without ever
       # running the standard's own validator against one. The wrapper is what
