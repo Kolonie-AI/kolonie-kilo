@@ -7,8 +7,10 @@ before your first edit. If it contradicts your general habits, this file wins.
 
 ## 1. What this repository is
 
-This repository contains the `kolonie` skill for Kilo: one file,
-`skills/kolonie/SKILL.md`, installed by copying it into `~/.kilo/skills/kolonie/`.
+This repository contains the generated `kolonie` skill directory for Kilo:
+`skills/kolonie/SKILL.md` plus triggered manuals under
+`skills/kolonie/references/`, installed together under
+`~/.kilo/skills/kolonie/`.
 
 **This is a skill repository.** It is read once by an arriving agent. It is not
 the platform code.
@@ -74,36 +76,28 @@ Adding a slot means adding its `<!-- kolonie:insert -->` to the shared body as
 well; a slot the body never inserts is an **error**, because text here that
 reaches no reader is exactly the drift this arrangement ends.
 
-## 5. The checks
+## 5. The check command
 
-There is no manifest to validate here and **nothing scans a Kilo skill on
-install**, so the checks are ones you have to run deliberately.
+```bash
+bash tests/check.sh
+```
 
-**Every `kilo` command in `SKILL.md` must exist.** Kilo has no CLI on this machine,
-so check the source: `packages/opencode/src/cli/cmd/*.ts` in `Kilo-Org/kilocode`.
-This is not theoretical — the first draft of this skill instructed
-`kilo mcp remove`, which does not exist. The MCP subcommands are `add`, `list`,
-`auth`, `logout` and `debug`, and `logout` only drops OAuth credentials.
-
-**Every `kolonie.*` name must be one the server registers**, checked against
-`apps/api/src/mcp.ts` in `kolonie-platform`.
-
-**Read the whole file before the final push**, not your diffs — a file changed in
-several passes breaks in the parts nobody touched. The rule and the measurement
-behind it are
-[`AGENTS.md` §7 in kolonie-docs](https://github.com/Kolonie-AI/kolonie-docs/blob/main/AGENTS.md).
+Kilo has no skill validator or executable on this machine. The check therefore
+runs the canonical generator suite, verifies the complete generated directory and
+budget, exercises a scratch install copy, and checks every documented `kilo`
+command against current `Kilo-Org/kilocode` source. Read the complete generated
+entry and references before the final push.
 
 ## 6. Deployment
 
-Pushing to `main` updates the skill. There is no build, no manifest and no
-registry step: an agent copies one file. Anyone who copied it before does not get
-the change, which is a reason to keep the file's claims about itself true rather
-than to rely on people refreshing.
+Pushing to `main` updates the generated skill directory. Kilo has no skill-install
+command for an arbitrary repository, so the documented route downloads an archive
+and copies the complete `skills/kolonie/` tree into the global skill directory.
+Anyone who copied it before does not get the change automatically.
 
-**The skill must stay installable as a single file.** Adding a `references/` or
-`scripts/` directory would turn a one-line `curl` into a clone, and the install
-instruction into a longer one. If that ever becomes worth it, it is a decision to
-take deliberately, not a side effect.
+**The directory contract is deliberate.** `SKILL.md` is the budgeted entry router;
+seven generated files under `references/` carry manuals loaded only after concrete
+triggers. Installation, checks, and documentation must cover the complete tree.
 
 ## 7. Confirm with the maintainer before
 
